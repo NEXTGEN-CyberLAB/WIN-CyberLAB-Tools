@@ -276,8 +276,9 @@ function Example3 {
         # Join the domain if credentials are valid
         Add-Computer -ComputerName $env:computername -DomainName $domainName -Credential $credential
         Write-Host "Rebooting now!"
+        pause
         Restart-Computer -Force
-        Start-Sleep -Seconds 3
+        
     }
 
     Write-Host "Great work! All set!"
