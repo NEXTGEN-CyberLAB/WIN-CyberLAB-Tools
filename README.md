@@ -3,7 +3,7 @@ Hi there :)
 
 This is the CyberLAB handy tools script - please note it is in Alpha at the moment :) If you've found this, congrats! You're either part of NEXTGEN, or you're a close part of the NEXTGEN Circle of trust!
 
-Please download the script and run it locally for best results (or copy and paste the raw code in to PowerShell ISE.
+Please download the script and run it locally for best results (or copy and paste the raw code in to PowerShell ISE. Must be run as an Admin user.
 
 Technically you can pipe this script in to powershell directly using something like this, but it's not really built for this yet:
 
