@@ -270,6 +270,7 @@ function Example3 {
             
             if (-not $credentialsValid) {
                 Write-Host -ForegroundColor Red "Invalid credentials. Please try again."
+                pause
             }
         }
 
