@@ -1,4 +1,4 @@
-﻿####################################################
+####################################################
 #                                                  #
 #  Please reach out to NEXTGEN for any additions,  #
 #  bug fixes, corrections or otherwise. Script is  #
@@ -202,11 +202,32 @@ function Example3 {
         }
     }
 
+    # Function to test if the IP address is reachable
+    function Test-IP {
+        param (
+            [string]$ipAddress
+        )
+        try {
+            $ping = Test-Connection -ComputerName $ipAddress -Count 1 -Quiet
+            return $ping
+        } catch {
+            return $false
+        }
+    }
+
     # Get Domain Name from user
     $domainName = Read-Host "Enter the domain name (e.g., coolcoy.com)"
 
-    # Get Domain Controller IP from user
-    $domainControllerIP = Read-Host "Enter the IP address of the domain controller"
+    # Loop until a valid domain controller IP is provided
+    $ipValid = $false
+    while (-not $ipValid) {
+        $domainControllerIP = Read-Host "Enter the IP address of the domain controller"
+        $ipValid = Test-IP -ipAddress $domainControllerIP
+
+        if (-not $ipValid) {
+            Write-Host -ForegroundColor Red "Invalid or unreachable IP address. Please try again."
+        }
+    }
 
     # Get all network adapters
     $adapters = Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
@@ -255,14 +276,14 @@ function Example3 {
         # Join the domain if credentials are valid
         Add-Computer -ComputerName $env:computername -DomainName $domainName -Credential $credential
         Write-Host "Rebooting now!"
-        pause
         Restart-Computer -Force
-        
+        Start-Sleep -Seconds 3
     }
 
     Write-Host "Great work! All set!"
     Pause
 }
+
 
 
 function Example4 {
