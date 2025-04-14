@@ -466,6 +466,35 @@ function Example6 {
 
 function Example7 {
     Write-Host "This is a test for changing the password for the logged-in user."
+    $username = $env:UserName
+    $newPassword = Read-Host "Enter new password" -AsSecureString
+    $confirmPassword = Read-Host "Confirm new password" -AsSecureString
+
+    $plain1 = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
+        [Runtime.InteropServices.Marshal]::SecureStringToBSTR($newPassword)
+    )
+    $plain2 = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
+        [Runtime.InteropServices.Marshal]::SecureStringToBSTR($confirmPassword)
+    )
+
+    if ($plain1 -ne $plain2) {
+        Write-Host "Passwords do not match." -ForegroundColor Red
+        return
+    }
+
+    try {
+        Set-LocalUser -Name $username -Password $newPassword -ErrorAction Stop
+        Write-Host "Password updated successfully for '$username'." -ForegroundColor Green
+        [System.Windows.Forms.MessageBox]::Show("Password updated successfully for '$username'.", "Success", "OK", "Information")
+    }
+    catch {
+        [System.Windows.Forms.MessageBox]::Show(
+        "Failed to change password. This may be due to password complexity requirements (e.g., minimum length, capital letters, numbers, or special characters).",
+        "Password Change Failed",
+        [System.Windows.Forms.MessageBoxButtons]::OK,
+        [System.Windows.Forms.MessageBoxIcon]::Error
+    )
+    }
 }
 
 function Example8 {
