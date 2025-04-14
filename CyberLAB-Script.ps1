@@ -415,8 +415,53 @@ function Example5 {
     }
 }
 
+
+function IsValid-ComputerName {
+    param([string]$name)
+
+    # Must be 1-15 characters
+    if ($name.Length -lt 1 -or $name.Length -gt 15) {
+        return $false
+    }
+
+    # Only allow letters, numbers, and hyphens
+    if ($name -notmatch '^[a-zA-Z0-9\-]+$') {
+        return $false
+    }
+
+    # Cannot start or end with a hyphen
+    if ($name.StartsWith("-") -or $name.EndsWith("-")) {
+        return $false
+    }
+    if ($name -match '^\d+$') {
+        return $false
+    }
+
+    return $true
+                                                                        
+}
+
 function Example6 {
-    Write-Host "This is a test for changing the computer name."
+    Write-Host "This is a test for changing the computer name (1-15 characters, letters/numbers/hyphens only)."
+    do{
+        $newName = Read-Host "Enter new computer name"
+        if (-not (IsValid-ComputerName $newName)) {
+        Write-Host "Invalid computer name. Please try again." -ForegroundColor Red
+        }
+    }while (-not (IsValid-ComputerName $newName))
+    
+    
+    Write-Host "Renaming computer to: $newName"
+    Rename-Computer -NewName $newName -Force -PassThru
+
+    $restartChoice = Read-Host "Do you want to restart now? (Y/N)"
+
+    if ($restartChoice -eq "Y" -or $restartChoice -eq "y") {
+        Write-Host "Restarting the computer..."
+        Restart-Computer -Force
+    } else {
+        Write-Host "Computer name will be changed after the next restart."
+    }
 }
 
 function Example7 {
