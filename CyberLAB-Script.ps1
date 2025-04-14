@@ -548,6 +548,31 @@ function Example11 {
 
 function Example12 {
     Write-Host "This is a test for an Nmap scan of your current network."
+
+    try {
+        nmap --version | Out-Null
+        Write-Host "nmap is installed."
+        $ip = (ipconfig | Select-String "IPv4" | Select-Object -First 1).ToString().Split(':')[-1].Trim()
+        if (-not $ip) {
+            Write-Host "Could not determine local IP address."
+            return
+        }
+        $octets = $ip.Split('.')
+        $subnet = "$($octets[0]).$($octets[1]).0.0/16"
+        Write-Host "Detected IP: $ip"
+        Write-Host "Scanning subnet: $subnet`n"
+        $confirm = Read-Host "Do you want to run the nmap ping scan? Please note that scan can take a long time.(Y/N)"
+
+        if ($confirm -eq "Y" -or $confirm -eq "y") {
+            Write-Host "Running nmap ping scan on $subnet"
+            nmap -sn $subnet
+        } else{
+            Write-Host "Skipping nmap scan."
+        }
+
+    } catch {
+        Write-Host "nmap is not installed or not in PATH. Please try again after installed."
+    }
 }
 
 function Example13 {
