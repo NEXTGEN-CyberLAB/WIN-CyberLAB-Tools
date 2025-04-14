@@ -506,11 +506,44 @@ function Example9 {
 }
 
 function Example10 {
+    ipconfig
     Write-Host "This is a test for displaying network information."
 }
 
 function Example11 {
     Write-Host "This is a test for checking networking function."
+
+    try{
+        if (Test-Connection -ComputerName 8.8.8.8 -Count 2 -Quiet -ErrorAction Stop) {
+        Write-Host "Internet is reachable via 8.8.8.8.`n"
+    } else {
+        Write-Host "No internet connection (8.8.8.8 not reachable)."
+        return
+    }
+
+
+    } catch {
+        Write-Host "NO CONNECTION"
+    }
+
+      Write-Host "Pinging google.com..."
+    try {
+        if (Test-Connection -ComputerName google.com -Count 2 -Quiet -ErrorAction Stop) {
+            Write-Host "google.com is reachable.`n"
+        } else {
+            Write-Host "Cannot reach google.com (possible DNS or firewall issue)."
+            return
+        }
+    } catch {
+        Write-Host "Error pinging google.com: $_"
+        return
+    }
+
+    Write-Host "All network checks passed!"
+
+    
+
+
 }
 
 function Example12 {
