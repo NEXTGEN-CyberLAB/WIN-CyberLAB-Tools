@@ -354,7 +354,7 @@ function Example5 {
             Write-Host "Unsupported OS: $osCaption" -ForegroundColor Yellow
             return $false
         }
-    }
+    
 
 
 
