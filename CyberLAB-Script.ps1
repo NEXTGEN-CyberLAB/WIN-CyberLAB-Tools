@@ -316,7 +316,7 @@ function expandPartition {
 
 }
 
-function Example5 {
+function virtualUSB {
     param (
         [string]$action,
         [int]$sizeInMB
@@ -354,36 +354,9 @@ function Example5 {
             Write-Host "Unsupported OS: $osCaption" -ForegroundColor Yellow
             return $false
         }
-    
-
-
-
-        # $hyperv = Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All
-        # if ($hyperv.State -eq "Disabled") {
-        #     Write-Host "Hyper-V is not enabled. Attempting to enable it..."
-        #     try {
-        #         Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart
-        #         Write-Host "Hyper-V has been enabled. A restart is required for the changes to take effect."
-        #         $restart = Read-Host "Do you want to restart now? (y/n)"
-        #         if ($restart -eq 'y') {
-        #             Restart-Computer -Force
-        #         } else {
-        #             Write-Host "Please restart your computer before using the virtual USB functions."
-        #             return $false
-        #         }
-        #     } catch {
-        #         Write-Host "Failed to enable Hyper-V. This feature may not be available on your system."
-        #         Write-Host "Error: $_"
-        #         return $false
-        #     }
-        # } elseif ($hyperv.State -eq "Enabled") {
-        #     Write-Host "Hyper-V is already enabled."
-        #     return $true
-        # } else {
-        #     Write-Host "Unable to determine Hyper-V state. This feature may not be available on your system."
-        #     return $false
-        # }
     }
+
+    
 
     # Check if Hyper-V is enabled, enable if not
     if (-not (Check-And-Enable-HyperV)) {
@@ -653,7 +626,7 @@ function ExecuteOption {
         2 { buildDomainController }
         3 { domainJoining }
         4 { expandPartition }
-        5 { Example5 -action $action -sizeInMB $sizeInMB }
+        5 { virtualUSB -action $action -sizeInMB $sizeInMB }
         6 { changeComputerName }
         7 { changePassword }
         8 { getSystemInfo }
