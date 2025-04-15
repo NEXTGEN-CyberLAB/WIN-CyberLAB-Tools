@@ -570,8 +570,7 @@ function ping {
         return
     }
 
-    Write-Host "All network checks passed!"
-
+    Get-Service -Name TermService
     
 
 
