@@ -536,7 +536,7 @@ function getDiskUsage {
     Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free, @{Name="Used(GB)";Expression={"{0:N2}" -f ($_.Used / 1GB)}}, @{Name="Free(GB)";Expression={"{0:N2}" -f ($_.Free / 1GB)}}, @{Name="Total(GB)";Expression={"{0:N2}" -f ($_.Used / 1GB + $_.Free / 1GB)}}
 }
 
-function Example10 {
+function getIPConfig {
     ipconfig
     Write-Host "This is a test for displaying network information."
 }
@@ -630,7 +630,7 @@ function ExecuteOption {
         7 { changePassword }
         8 { getSystemInfo }
         9 { getDiskUsage }
-        10 { Example10 }
+        10 { getIPConfig }
         11 { ping }
         12 { nmapScan }
         13 { getSupport }
