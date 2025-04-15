@@ -56,29 +56,22 @@ function Show-Menu {
 }
 
 # function to download latest script from github
+
 function scriptDownload {
-    $url = "https://raw.githubusercontent.com/NEXTGEN-CyberLAB/WIN-CyberLAB-Tools/refs/heads/main/CyberLAB-Script.ps1"
-    $destination = $PSCommandPath
+    param (
+        [string]$url = "https://raw.githubusercontent.com/NEXTGEN-CyberLAB/WIN-CyberLAB-Tools/refs/heads/main/CyberLAB-Script.ps1",
+        [string]$savePath = "$env:USERPROFILE\Downloads\script.ps1"
+    )
 
-    Write-Host "`nChecking for script updates..." -ForegroundColor Cyan
+    Write-Host "Downloading latest script from GitHub..."
+
     try {
-        Invoke-WebRequest -Uri $url -OutFile "$destination.new" -UseBasicParsing
-        Write-Host "Downloaded latest version. Replacing current script..." -ForegroundColor Yellow
-
-        # Replace current script with new one
-        Move-Item -Path "$destination.new" -Destination $destination -Force
-        Write-Host "Script successfully updated!" -ForegroundColor Green
-
-        # Optionally: restart script
-        Write-Host "`nRestarting script..." -ForegroundColor Cyan
-        Start-Process powershell.exe -ArgumentList "-ExecutionPolicy Bypass -File `"$destination`"" -Verb RunAs
-        exit
+        Invoke-WebRequest -Uri $url -OutFile $savePath -UseBasicParsing
+        Write-Host "Script downloaded successfully to: $savePath" -ForegroundColor Green
     } catch {
-        Write-Host "Failed to update the script. Error: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "Failed to download the script. Error: $($_.Exception.Message)" -ForegroundColor Red
     }
 }
-
-
 
 
 function buildDomainController {
