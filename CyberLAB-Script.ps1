@@ -598,33 +598,69 @@ function ping {
 
 # Function to run nmap scan and display output
 function nmapScan {
-    Write-Host "This is a test for an Nmap scan of your current network."
+    Write-Host "Starting Nmap network scan..."
+
+    $nmapInstalled = $false
 
     try {
         nmap --version | Out-Null
-        Write-Host "nmap is installed."
-        $ip = (ipconfig | Select-String "IPv4" | Select-Object -First 1).ToString().Split(':')[-1].Trim()
-        if (-not $ip) {
-            Write-Host "Could not determine local IP address."
-            return
-        }
-        $octets = $ip.Split('.')
-        $subnet = "$($octets[0]).$($octets[1]).0.0/16"
-        Write-Host "Detected IP: $ip"
-        Write-Host "Scanning subnet: $subnet`n"
-        $confirm = Read-Host "Do you want to run the nmap ping scan? Please note that scan can take a long time.(Y/N)"
-
-        if ($confirm -eq "Y" -or $confirm -eq "y") {
-            Write-Host "Running nmap ping scan on $subnet"
-            nmap -sn $subnet
-        } else{
-            Write-Host "Skipping nmap scan."
-        }
-
+        $nmapInstalled = $true
     } catch {
-        Write-Host "nmap is not installed or not in PATH. Please try again after installed."
+        Write-Host "Nmap is not installed or not in PATH."
+    }
+
+    if (-not $nmapInstalled) {
+        # Detect OS version
+        $os = Get-CimInstance -ClassName Win32_OperatingSystem
+        $caption = $os.Caption
+
+        Write-Host "Detected OS: $caption"
+
+        if ($caption -match "Windows 10" -or $caption -match "Windows 11") {
+            $install = Read-Host "Do you want to install Nmap using winget? (Y/N)"
+            if ($install -eq "Y" -or $install -eq "y") {
+                try {
+                    Write-Host "Installing Nmap via winget..."
+                    winget install -e --id Insecure.Nmap -h
+                    Write-Host "Nmap installation complete. Please rerun this function to scan."
+                } catch {
+                    Write-Host "Winget failed to install Nmap. Please try manually: https://nmap.org/download.html"
+                }
+            } else {
+                Write-Host "Skipping installation. You can install it later from: https://nmap.org/download.html"
+            }
+        } else {
+            Write-Host "Please install Nmap manually from: https://nmap.org/download.html"
+        }
+
+        return
+    }
+
+    # Continue if Nmap is installed
+    Write-Host "Nmap is installed."
+
+    $ip = (ipconfig | Select-String "IPv4" | Select-Object -First 1).ToString().Split(':')[-1].Trim()
+
+    if (-not $ip) {
+        Write-Host "Could not determine local IP address."
+        return
+    }
+
+    $octets = $ip.Split('.')
+    $subnet = "$($octets[0]).$($octets[1]).0.0/16"
+
+    Write-Host "Detected IP: $ip"
+    Write-Host "Scanning subnet: $subnet`n"
+
+    $confirm = Read-Host "Do you want to run the nmap ping scan? Please note that scan can take a long time. (Y/N)"
+    if ($confirm -eq "Y" -or $confirm -eq "y") {
+        Write-Host "Running nmap ping scan on $subnet..."
+        nmap -sn $subnet
+    } else {
+        Write-Host "Skipping nmap scan."
     }
 }
+
 
 
 # Function open CloudShare Support portal
