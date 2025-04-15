@@ -55,9 +55,31 @@ function Show-Menu {
     Write-Host "================================================================================="
 }
 
+# function to download latest script from github
 function scriptDownload {
-    Write-Host "This is a test for downloading this script to the local machine."
+    $url = "https://raw.githubusercontent.com/NEXTGEN-CyberLAB/WIN-CyberLAB-Tools/refs/heads/main/CyberLAB-Script.ps1"
+    $destination = $PSCommandPath
+
+    Write-Host "`nChecking for script updates..." -ForegroundColor Cyan
+    try {
+        Invoke-WebRequest -Uri $url -OutFile "$destination.new" -UseBasicParsing
+        Write-Host "Downloaded latest version. Replacing current script..." -ForegroundColor Yellow
+
+        # Replace current script with new one
+        Move-Item -Path "$destination.new" -Destination $destination -Force
+        Write-Host "Script successfully updated!" -ForegroundColor Green
+
+        # Optionally: restart script
+        Write-Host "`nRestarting script..." -ForegroundColor Cyan
+        Start-Process powershell.exe -ArgumentList "-ExecutionPolicy Bypass -File `"$destination`"" -Verb RunAs
+        exit
+    } catch {
+        Write-Host "Failed to update the script. Error: $($_.Exception.Message)" -ForegroundColor Red
+    }
 }
+
+
+
 
 function buildDomainController {
     # Function to install required modules
@@ -287,7 +309,7 @@ function domainJoining {
 }
 
 
-
+# Function to expand disk size
 function expandPartition {
 
     $partition = Get-Partition -DriveLetter C
@@ -316,6 +338,7 @@ function expandPartition {
 
 }
 
+# Function to create virtual USB
 function virtualUSB {
     param (
         [string]$action,
@@ -325,6 +348,7 @@ function virtualUSB {
     # Function to check and enable Hyper-V
     function Check-And-Enable-HyperV {
 
+        # Check OS version
         $osCaption = (Get-CimInstance Win32_OperatingSystem).Caption
         Write-Host "Detected OS: $osCaption"
 
@@ -446,7 +470,7 @@ function virtualUSB {
     }
 }
 
-
+# Check if the new device name is valid
 function IsValid-ComputerName {
     param([string]$name)
 
@@ -472,10 +496,10 @@ function IsValid-ComputerName {
                                                                         
 }
 
+# Function to change computer/device name
 function changeComputerName {
-    Write-Host "This is a test for changing the computer name (1-15 characters, letters/numbers/hyphens only)."
     do{
-        $newName = Read-Host "Enter new computer name"
+        $newName = Read-Host "Enter new computer name(1-15 characters, letters/numbers/hyphens only)"
         if (-not (IsValid-ComputerName $newName)) {
         Write-Host "Invalid computer name. Please try again." -ForegroundColor Red
         }
@@ -495,8 +519,9 @@ function changeComputerName {
     }
 }
 
+
+# Change password for current user
 function changePassword {
-    Write-Host "This is a test for changing the password for the logged-in user."
     $username = $env:UserName
     $newPassword = Read-Host "Enter new password" -AsSecureString
     $confirmPassword = Read-Host "Confirm new password" -AsSecureString
@@ -528,21 +553,23 @@ function changePassword {
     }
 }
 
+# Function to display system information
 function getSystemInfo {
     Get-ComputerInfo
 }
 
+# Fucntion to show disk usage
 function getDiskUsage {
     Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free, @{Name="Used(GB)";Expression={"{0:N2}" -f ($_.Used / 1GB)}}, @{Name="Free(GB)";Expression={"{0:N2}" -f ($_.Free / 1GB)}}, @{Name="Total(GB)";Expression={"{0:N2}" -f ($_.Used / 1GB + $_.Free / 1GB)}}
 }
 
+# Function to display network informaton
 function getIPConfig {
     ipconfig
-    Write-Host "This is a test for displaying network information."
 }
 
+# Function to check network connection
 function ping {
-    Write-Host "This is a test for checking networking function."
 
     try{
         if (Test-Connection -ComputerName 8.8.8.8 -Count 2 -Quiet -ErrorAction Stop) {
@@ -576,6 +603,7 @@ function ping {
 
 }
 
+# Function to run nmap scan and display output
 function nmapScan {
     Write-Host "This is a test for an Nmap scan of your current network."
 
@@ -605,6 +633,8 @@ function nmapScan {
     }
 }
 
+
+# Function open CloudShare Support portal
 function getSupport {
     # Print the message
     Write-Host "Opening the CloudShare Support Portal. Feel free to raise tickets if you would like, but please keep lab-support@nextgen.group on CC. Please take a look through the FAQs before raising a ticket. Feel free to reach out to NEXTGEN before raising a ticket through CloudShare."
@@ -639,6 +669,7 @@ function ExecuteOption {
     }
 }
 
+# Check if powewrshell run by admin
 function Check-Admin {
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     $adminRole = [Security.Principal.WindowsBuiltInRole]::Administrator
