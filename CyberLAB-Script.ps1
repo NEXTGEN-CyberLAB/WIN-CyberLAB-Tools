@@ -621,8 +621,9 @@ function nmapScan {
             if ($install -eq "Y" -or $install -eq "y") {
                 try {
                     Write-Host "Installing Nmap via winget..."
-                    winget install -e --id Insecure.Nmap
-                    Write-Host "Nmap installation complete. Please rerun this function to scan."
+                    winget install -e --id Insecure.Nmap --source winget 
+                    Write-Host "`nNmap installation complete. Please close and reopen your PowerShell window to apply changes." -ForegroundColor Yellow
+
                 } catch {
                     Write-Host "Winget failed to install Nmap. Please try manually: https://nmap.org/download.html"
                 }
