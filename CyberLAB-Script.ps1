@@ -290,11 +290,7 @@ function domainJoining {
 
 function expandPartition {
 
-    Read-Host
-    # Get the C: drive partition
     $partition = Get-Partition -DriveLetter C
-
-    # Get the associated disk
     $disk = Get-Disk -Number $partition.DiskNumber
 
     $supportedSize = Get-PartitionSupportedSize -DiskNumber $disk.Number -PartitionNumber $partition.PartitionNumber
@@ -318,14 +314,6 @@ function expandPartition {
         Write-Host "Operation cancelled." -ForegroundColor Yellow
     }
 
-    # # Get the largest size available to extend
-    # $size = ($disk | Get-PartitionSupportedSize -PartitionNumber $partition.PartitionNumber)
-
-    # # Resize partition to maximum supported size
-    # Resize-Partition -DriveLetter C -Size $size.SizeMax
-
-
-    Write-Host "This is a test for expanding the current partition when you've increased the drive in CloudShare."
 }
 
 function Example5 {
