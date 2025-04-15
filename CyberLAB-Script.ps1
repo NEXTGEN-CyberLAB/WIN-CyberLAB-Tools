@@ -465,7 +465,7 @@ function IsValid-ComputerName {
                                                                         
 }
 
-function Example6 {
+function changeComputerName {
     Write-Host "This is a test for changing the computer name (1-15 characters, letters/numbers/hyphens only)."
     do{
         $newName = Read-Host "Enter new computer name"
@@ -488,7 +488,7 @@ function Example6 {
     }
 }
 
-function Example7 {
+function changePassword {
     Write-Host "This is a test for changing the password for the logged-in user."
     $username = $env:UserName
     $newPassword = Read-Host "Enter new password" -AsSecureString
@@ -521,11 +521,11 @@ function Example7 {
     }
 }
 
-function Example8 {
+function getSystemInfo {
     Get-ComputerInfo
 }
 
-function Example9 {
+function getDiskUsage {
     Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free, @{Name="Used(GB)";Expression={"{0:N2}" -f ($_.Used / 1GB)}}, @{Name="Free(GB)";Expression={"{0:N2}" -f ($_.Free / 1GB)}}, @{Name="Total(GB)";Expression={"{0:N2}" -f ($_.Used / 1GB + $_.Free / 1GB)}}
 }
 
@@ -534,7 +534,7 @@ function Example10 {
     Write-Host "This is a test for displaying network information."
 }
 
-function Example11 {
+function ping {
     Write-Host "This is a test for checking networking function."
 
     try{
@@ -570,7 +570,7 @@ function Example11 {
 
 }
 
-function Example12 {
+function nmapScan {
     Write-Host "This is a test for an Nmap scan of your current network."
 
     try {
@@ -599,7 +599,7 @@ function Example12 {
     }
 }
 
-function Example13 {
+function getSupport {
     # Print the message
     Write-Host "Opening the CloudShare Support Portal. Feel free to raise tickets if you would like, but please keep lab-support@nextgen.group on CC. Please take a look through the FAQs before raising a ticket. Feel free to reach out to NEXTGEN before raising a ticket through CloudShare."
 
@@ -620,14 +620,14 @@ function ExecuteOption {
         3 { domainJoining }
         4 { expandPartition }
         5 { Example5 -action $action -sizeInMB $sizeInMB }
-        6 { Example6 }
-        7 { Example7 }
-        8 { Example8 }
-        9 { Example9 }
+        6 { changeComputerName }
+        7 { changePassword }
+        8 { getSystemInfo }
+        9 { getDiskUsage }
         10 { Example10 }
-        11 { Example11 }
-        12 { Example12 }
-        13 { Example13 }
+        11 { ping }
+        12 { nmapScan }
+        13 { getSupport }
         14 { Write-Host "Exiting..." }
         default { Write-Host "Invalid choice. Please select a number between 1 and 14." }
     }
