@@ -621,7 +621,7 @@ function nmapScan {
             if ($install -eq "Y" -or $install -eq "y") {
                 try {
                     Write-Host "Installing Nmap via winget..."
-                    winget install -e --id Insecure.Nmap -h
+                    winget install -e --id Insecure.Nmap
                     Write-Host "Nmap installation complete. Please rerun this function to scan."
                 } catch {
                     Write-Host "Winget failed to install Nmap. Please try manually: https://nmap.org/download.html"
