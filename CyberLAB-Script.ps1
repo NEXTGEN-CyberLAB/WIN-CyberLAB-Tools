@@ -55,11 +55,11 @@ function Show-Menu {
     Write-Host "================================================================================="
 }
 
-function Example1 {
+function scriptDownload {
     Write-Host "This is a test for downloading this script to the local machine."
 }
 
-function Example2 {
+function buildDomainController {
     # Function to install required modules
 function Install-RequiredModules {
     Write-Host "DEBUG: Entering Install-RequiredModules function..."
@@ -177,7 +177,7 @@ Setup-DomainController
 
 }
 
-function Example3 {
+function domainJoining {
     # Function to set DNS Server Address
     function Set-DnsServerAddress {
         param (
@@ -288,7 +288,43 @@ function Example3 {
 
 
 
-function Example4 {
+function expandPartition {
+
+    Read-Host
+    # Get the C: drive partition
+    $partition = Get-Partition -DriveLetter C
+
+    # Get the associated disk
+    $disk = Get-Disk -Number $partition.DiskNumber
+
+    $supportedSize = Get-PartitionSupportedSize -DiskNumber $disk.Number -PartitionNumber $partition.PartitionNumber
+    $currentSizeGB = [math]::Round($partition.Size / 1GB, 2)
+    $maxSizeGB = [math]::Round($supportedSize.SizeMax / 1GB, 2)
+
+
+    Write-Host "You're about to resize drive C: from $currentSizeGB GB to $maxSizeGB GB."
+    Write-Host "This will use all available unallocated space on the disk."
+    $confirm = Read-Host "Do you want to continue? (Y/N)"
+
+    if ($confirm -match '^[Yy]$') {
+        try {
+            Resize-Partition -DriveLetter C -Size $supportedSize.SizeMax -ErrorAction Stop
+            Write-Host "Disk successfully resized to $maxSizeGB GB." -ForegroundColor Green
+        }
+        catch {
+            Write-Host "Failed to resize disk: $($_.Exception.Message)" -ForegroundColor Red
+        }
+    } else {
+        Write-Host "Operation cancelled." -ForegroundColor Yellow
+    }
+
+    # # Get the largest size available to extend
+    # $size = ($disk | Get-PartitionSupportedSize -PartitionNumber $partition.PartitionNumber)
+
+    # # Resize partition to maximum supported size
+    # Resize-Partition -DriveLetter C -Size $size.SizeMax
+
+
     Write-Host "This is a test for expanding the current partition when you've increased the drive in CloudShare."
 }
 
@@ -591,10 +627,10 @@ function ExecuteOption {
     )
 
     switch ($choice) {
-        1 { Example1 }
-        2 { Example2 }
-        3 { Example3 }
-        4 { Example4 }
+        1 { scriptDownload }
+        2 { buildDomainController }
+        3 { domainJoining }
+        4 { expandPartition }
         5 { Example5 -action $action -sizeInMB $sizeInMB }
         6 { Example6 }
         7 { Example7 }
