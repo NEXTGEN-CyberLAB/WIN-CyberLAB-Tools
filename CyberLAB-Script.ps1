@@ -388,17 +388,17 @@ function virtualUSB {
         }
     }
 
-    
+    # Check if VT is enabled
     if (-not (Check-Virtualization)) {
         Write-Host "Returning to main menu..."
         return
     }
 
     # Check if Hyper-V is enabled, enable if not
-    # if (-not (Check-And-Enable-HyperV)) {
-    #     Write-Host "Returning to main menu..."
-    #     return
-    # }
+    if (-not (Check-And-Enable-HyperV)) {
+        Write-Host "Returning to main menu..."
+        return
+    }
 
     # Function to create a virtual USB storage drive
     function Create-VirtualUSB {
