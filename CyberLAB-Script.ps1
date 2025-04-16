@@ -340,17 +340,24 @@ function virtualUSB {
     function Check-Virtualization {
         Write-Host "Checking virtualization support..."
 
-        $cpuInfo = Get-CimInstance -ClassName Win32_Processor | Select-Object -ExpandProperty VirtualizationFirmwareEnabled
+        # Use systeminfo to check for hypervisor
+        $hasHypervisor = (systeminfo) -match "A hypervisor has been detected"
 
+        if ($hasHypervisor) {
+            Write-Host "Hypervisor detected. Virtualization is active." -ForegroundColor Green
+            return $true
+        }
 
-        if ($cpuInfo -ne $true) {
-            Write-Host "Virtualization is not enabled on this system." -ForegroundColor Red
-            Write-Host "Please enable virtualization in your BIOS/UEFI settings and try again."
+        # Fallback: Try to detect VT-x or AMD-V support via Win32_Processor
+        $vtSupported = Get-CimInstance Win32_Processor | Select-Object -ExpandProperty SecondLevelAddressTranslationExtensions
+        if ($vtSupported -eq $true) {
+            Write-Host "VT-x/AMD-V features are present, but the hypervisor is not running." -ForegroundColor Yellow
+            Write-Host "Please ensure virtualization is enabled in BIOS and Hyper-V is active."
             return $false
         }
 
-        Write-Host "Virtualization is enabled." -ForegroundColor Green
-        return $true
+        Write-Host "Virtualization is not supported or not enabled." -ForegroundColor Red
+        return $false
     }
 
     # Function to check and enable Hyper-V
