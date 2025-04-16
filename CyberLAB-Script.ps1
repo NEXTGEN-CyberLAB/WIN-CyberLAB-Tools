@@ -340,9 +340,10 @@ function virtualUSB {
     function Check-Virtualization {
         Write-Host "Checking virtualization support..."
 
-        $virtualization = Get-ComputerInfo | Select-Object -ExpandProperty HyperVRequirementVirtualizationFirmwareEnabled
+        $cpuInfo = Get-CimInstance -ClassName Win32_Processor | Select-Object -ExpandProperty VirtualizationFirmwareEnabled
 
-        if ($virtualization -ne $true) {
+
+        if ($cpuInfo -ne $true) {
             Write-Host "Virtualization is not enabled on this system." -ForegroundColor Red
             Write-Host "Please enable virtualization in your BIOS/UEFI settings and try again."
             return
@@ -387,12 +388,13 @@ function virtualUSB {
     }
 
     
+    Check-Virtualization
 
     # Check if Hyper-V is enabled, enable if not
-    if (-not (Check-And-Enable-HyperV)) {
-        Write-Host "Returning to main menu..."
-        return
-    }
+    # if (-not (Check-And-Enable-HyperV)) {
+    #     Write-Host "Returning to main menu..."
+    #     return
+    # }
 
     # Function to create a virtual USB storage drive
     function Create-VirtualUSB {
