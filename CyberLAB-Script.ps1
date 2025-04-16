@@ -534,17 +534,13 @@ function changePassword {
     try {
         Set-LocalUser -Name $username -Password $newPassword -ErrorAction Stop
         Write-Host "Password updated successfully for '$username'." -ForegroundColor Green
-        [System.Windows.Forms.MessageBox]::Show("Password updated successfully for '$username'.", "Success", "OK", "Information")
     }
     catch {
-        [System.Windows.Forms.MessageBox]::Show(
-        "Failed to change password. This may be due to password complexity requirements (e.g., minimum length, capital letters, numbers, or special characters).",
-        "Password Change Failed",
-        [System.Windows.Forms.MessageBoxButtons]::OK,
-        [System.Windows.Forms.MessageBoxIcon]::Error
-    )
+        Write-Host "`nFailed to change password." -ForegroundColor Red
+        Write-Host "This may be due to password complexity requirements (e.g., minimum length, capital letters, numbers, or special characters)." -ForegroundColor Yellow
     }
 }
+
 
 # Function to display system information
 function getSystemInfo {
