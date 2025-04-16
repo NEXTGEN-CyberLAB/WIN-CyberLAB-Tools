@@ -337,6 +337,19 @@ function virtualUSB {
         [string]$action,
         [int]$sizeInMB
     )
+    function Check-Virtualization {
+        Write-Host "Checking virtualization support..."
+
+        $virtualization = Get-ComputerInfo | Select-Object -ExpandProperty HyperVRequirementVirtualizationFirmwareEnabled
+
+        if ($virtualization -ne $true) {
+            Write-Host "Virtualization is not enabled on this system." -ForegroundColor Red
+            Write-Host "Please enable virtualization in your BIOS/UEFI settings and try again."
+            return
+        }
+
+        Write-Host "Virtualization is enabled." -ForegroundColor Green
+    }
 
     # Function to check and enable Hyper-V
     function Check-And-Enable-HyperV {
