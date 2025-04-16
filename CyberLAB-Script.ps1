@@ -337,40 +337,15 @@ function virtualUSB {
         [string]$action,
         [int]$sizeInMB
     )
-    function Check-Virtualization {
-        Write-Host "Checking virtualization support..."
-
-        # Use systeminfo to check for hypervisor
-        $hasHypervisor = (systeminfo) -match "A hypervisor has been detected"
-
-        if ($hasHypervisor) {
-            Write-Host "Hypervisor detected. Virtualization is active." -ForegroundColor Green
-            return $true
-        }
-
-        # Fallback: Try to detect VT-x or AMD-V support via Win32_Processor
-        $vtSupported = Get-CimInstance Win32_Processor | Select-Object -ExpandProperty SecondLevelAddressTranslationExtensions
-        if ($vtSupported -eq $true) {
-            Write-Host "VT-x/AMD-V features are present, but the hypervisor is not running." -ForegroundColor Yellow
-            Write-Host "Please ensure virtualization is enabled in BIOS and Hyper-V is active."
-            return $false
-        }
-
-        Write-Host "Virtualization is not supported or not enabled." -ForegroundColor Red
-        return $false
-    }
 
     # Function to check and enable Hyper-V
     function Check-And-Enable-HyperV {
-
-        # Check OS version
         $osCaption = (Get-CimInstance Win32_OperatingSystem).Caption
         Write-Host "Detected OS: $osCaption"
 
         if ($osCaption -match "Windows 10" -or $osCaption -match "Windows 11") {
-            # Use optional features method for client OS
             try {
-                Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -All -NoRestart
+                Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -All -NoRestart -ErrorAction Stop
                 Write-Host "Hyper-V enabled. A restart may be required." -ForegroundColor Green
                 return $true
             } catch {
@@ -379,9 +354,8 @@ function virtualUSB {
             }
         }
         elseif ($osCaption -match "Windows Server") {
-            # Use Install-WindowsFeature for server OS
             try {
-                Install-WindowsFeature -Name Hyper-V -IncludeAllSubFeature -IncludeManagementTools
+                Install-WindowsFeature -Name Hyper-V -IncludeAllSubFeature -IncludeManagementTools -ErrorAction Stop
                 Write-Host "Hyper-V feature installed on Server OS. A restart may be required." -ForegroundColor Green
                 return $true
             } catch {
@@ -395,28 +369,14 @@ function virtualUSB {
         }
     }
 
-    # Check if VT is enabled
-    if (-not (Check-Virtualization)) {
-        Write-Host "Returning to main menu..."
-        return
-    }
-
-    # Check if Hyper-V is enabled, enable if not
-    if (-not (Check-And-Enable-HyperV)) {
-        Write-Host "Returning to main menu..."
-        return
-    }
-
     # Function to create a virtual USB storage drive
     function Create-VirtualUSB {
         param (
             [int]$sizeInMB
         )
-
         $drivePath = "C:\VirtualUSB.vhdx"
         $sizeInBytes = $sizeInMB * 1MB
 
-        # Create the virtual disk
         Write-Host "Creating virtual USB drive of size $sizeInMB MB at $drivePath"
         try {
             New-VHD -Path $drivePath -Dynamic -SizeBytes $sizeInBytes -Confirm:$false | Out-Null
@@ -425,12 +385,11 @@ function virtualUSB {
             return
         }
 
-        # Attach the virtual disk
         Write-Host "Attaching the virtual USB drive"
         try {
-            Mount-VHD -Path $drivePath -PassThru | 
-            Initialize-Disk -PassThru -PartitionStyle MBR | 
-            New-Partition -AssignDriveLetter -UseMaximumSize | 
+            Mount-VHD -Path $drivePath -PassThru |
+            Initialize-Disk -PassThru -PartitionStyle MBR |
+            New-Partition -AssignDriveLetter -UseMaximumSize |
             Format-Volume -FileSystem NTFS -NewFileSystemLabel "VirtualUSB" -Confirm:$false
             Write-Host "Virtual USB drive created and attached successfully."
         } catch {
@@ -447,12 +406,9 @@ function virtualUSB {
             if ($vhd.Attached) {
                 Write-Host "The virtual USB drive is currently attached with drive letters:"
                 $vhd | Get-Disk | Get-Partition | Format-Table -Property DriveLetter, Size, PartitionNumber
-
                 $confirmation = Read-Host "Do you want to detach and remove this virtual USB drive? (yes/no)"
                 if ($confirmation -eq 'yes') {
-                    Write-Host "Detaching the virtual USB drive"
                     Dismount-VHD -Path $drivePath -Confirm:$false
-                    Write-Host "Deleting the virtual USB drive file"
                     Remove-Item -Path $drivePath -Confirm:$false
                     Write-Host "Virtual USB drive detached and removed successfully."
                 } else {
@@ -466,6 +422,12 @@ function virtualUSB {
         } else {
             Write-Host "No virtual USB drive found at $drivePath"
         }
+    }
+
+    # Check if Hyper-V is enabled, enable if not
+    if (-not (Check-And-Enable-HyperV)) {
+        Write-Host "Returning to main menu..."
+        return
     }
 
     # Prompt for action and size if not provided
@@ -488,6 +450,7 @@ function virtualUSB {
         Write-Host "Invalid action. Use 'create' to create a virtual USB or 'disconnect' to disconnect and remove it."
     }
 }
+
 
 # Check if the new device name is valid
 function IsValid-ComputerName {
