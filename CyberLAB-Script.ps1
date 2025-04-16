@@ -346,10 +346,11 @@ function virtualUSB {
         if ($cpuInfo -ne $true) {
             Write-Host "Virtualization is not enabled on this system." -ForegroundColor Red
             Write-Host "Please enable virtualization in your BIOS/UEFI settings and try again."
-            return
+            return $false
         }
 
         Write-Host "Virtualization is enabled." -ForegroundColor Green
+        return $true
     }
 
     # Function to check and enable Hyper-V
@@ -388,7 +389,10 @@ function virtualUSB {
     }
 
     
-    Check-Virtualization
+    if (-not (Check-Virtualization)) {
+        Write-Host "Returning to main menu..."
+        return
+    }
 
     # Check if Hyper-V is enabled, enable if not
     # if (-not (Check-And-Enable-HyperV)) {
