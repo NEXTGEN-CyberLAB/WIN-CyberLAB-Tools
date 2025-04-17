@@ -390,6 +390,25 @@ function virtualUSB {
         $drivePath = "C:\VirtualUSB.vhdx"
         $sizeInBytes = $sizeInMB * 1MB
 
+        if (Test-Path $drivePath) {
+            Write-Host "A virtual USB already exists at $drivePath." -ForegroundColor Yellow
+            $response = Read-Host "Do you want to delete the existing VHD and recreate it? (Y/N)"
+            if ($response -match '^[Yy]$') {
+                try {
+                    Dismount-VHD -Path $drivePath -ErrorAction SilentlyContinue
+                    Start-Sleep -Seconds 1
+                    Remove-Item -Path $drivePath -Force
+                    Write-Host "Existing VHD deleted."
+                } catch {
+                    Write-Host "Failed to delete existing VHD file. Error: $_" -ForegroundColor Red
+                    return
+                }
+            } else {
+                Write-Host "Aborted by user. Existing VHD not modified." -ForegroundColor Cyan
+                return
+            }
+        }
+
         Write-Host "Creating virtual USB drive of size $sizeInMB MB at $drivePath"
         try {
             New-VHD -Path $drivePath -Dynamic -SizeBytes $sizeInBytes -Confirm:$false | Out-Null
