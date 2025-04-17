@@ -343,13 +343,6 @@ function virtualUSB {
         $osCaption = (Get-CimInstance Win32_OperatingSystem).Caption
         Write-Host "Detected OS: $osCaption"
 
-        # Check if Hyper-V is already enabled using DISM
-        $featureStatus = (DISM /Online /Get-FeatureInfo /FeatureName:Microsoft-Hyper-V-All) -join "`n"
-        if ($featureStatus -match "State : Enabled") {
-            Write-Host "Hyper-V is already enabled." -ForegroundColor Green
-            return $true
-        }
-
         # Try enabling Hyper-V depending on OS type
         if ($osCaption -match "Windows 10" -or $osCaption -match "Windows 11") {
             try {
