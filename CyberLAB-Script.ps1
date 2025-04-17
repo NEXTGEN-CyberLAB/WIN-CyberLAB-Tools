@@ -415,7 +415,7 @@ function virtualUSB {
                 return $false
             }
         } catch {
-            Write-Host "Failed to install Hyper-V on Server OS. Error: $_" -ForegroundColor Red
+            Write-Host "Failed to install Hyper-V on Server OS. Please check if BIOS virtualization is enabled. Error: $_" -ForegroundColor Red
             return $false
         }
     }
