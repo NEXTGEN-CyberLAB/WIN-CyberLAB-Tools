@@ -331,6 +331,30 @@ function expandPartition {
 
 }
 
+function Get-ValidSizeInput {
+    param (
+        [string]$PromptMessage = "Enter the size of the virtual USB storage (in MB)"
+    )
+
+    while ($true) {
+        $inputValue = Read-Host $PromptMessage
+
+        if ($null -eq $inputValue -or $inputValue.Trim() -eq '') {
+            Write-Host "No input provided. Please enter a value." -ForegroundColor Red
+            continue
+        }
+
+        $inputValue = $inputValue.Trim()
+
+        if ($inputValue -match '^\d+$') {
+            return [int]$inputValue
+        } else {
+            Write-Host "Invalid input. Please enter a whole number (e.g., 500)." -ForegroundColor Red
+        }
+    }
+}
+
+
 # Function to create virtual USB
 function virtualUSB {
     param (
@@ -467,20 +491,28 @@ function virtualUSB {
         $action = Read-Host "Enter the action (create/disconnect)"
     }
 
+
     if ($action -eq 'create') {
         if (-not $sizeInMB) {
-            $sizeInMB = Read-Host "Enter the size of the virtual USB storage (in MB)"
+            $sizeInMB = Get-ValidSizeInput
         }
-        if ($sizeInMB -match '^\d+$') {
+
+        try {
             Create-VirtualUSB -sizeInMB $sizeInMB
-        } else {
-            Write-Host "Invalid size entered. Please enter a valid number."
+        } catch {
+            Write-Host "An error occurred while creating the virtual USB: $_" -ForegroundColor Red
         }
-    } elseif ($action -eq 'disconnect') {
-        Remove-VirtualUSB
-    } else {
-        Write-Host "Invalid action. Use 'create' to create a virtual USB or 'disconnect' to disconnect and remove it."
+    }elseif ($action -eq 'disconnect') {
+        try {
+            Remove-VirtualUSB
+        } catch {
+            Write-Host "Failed to disconnect/remove the virtual USB: $_" -ForegroundColor Red
+        }
+    }else {
+        Write-Host "Invalid action. Use 'create' to create a virtual USB or 'disconnect' to remove it." -ForegroundColor Red
     }
+
+
 }
 
 
