@@ -340,34 +340,46 @@ function virtualUSB {
 
     # Function to check and enable Hyper-V
     function Check-And-Enable-HyperV {
-        $osCaption = (Get-CimInstance Win32_OperatingSystem).Caption
-        Write-Host "Detected OS: $osCaption"
+    $osCaption = (Get-CimInstance Win32_OperatingSystem).Caption
+    Write-Host "Detected OS: $osCaption"
 
-        # Try enabling Hyper-V depending on OS type
-        if ($osCaption -match "Windows 10" -or $osCaption -match "Windows 11") {
-            try {
-                Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -All -NoRestart -ErrorAction Stop
-                Write-Host "Hyper-V enabled. A restart may be required." -ForegroundColor Green
+    if ($osCaption -match "Windows 10" -or $osCaption -match "Windows 11") {
+        try {
+
+            $result = Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -All -NoRestart -ErrorAction Stop
+            if ($result.RestartNeeded -or $result.FeatureName) {
+                Write-Host "Hyper-V enabled." -ForegroundColor Green
                 return $true
-            } catch {
-                Write-Host "Failed to enable Hyper-V on client OS. Error: $_" -ForegroundColor Red
+            } else {
+                Write-Host "Enable-WindowsOptionalFeature returned unexpected result." -ForegroundColor Yellow
                 return $false
             }
-        }
-        elseif ($osCaption -match "Windows Server") {
-            try {
-                Install-WindowsFeature -Name Hyper-V -IncludeAllSubFeature -IncludeManagementTools -ErrorAction Stop
-                Write-Host "Hyper-V feature installed on Server OS. A restart may be required." -ForegroundColor Green
-                return $true
-            } catch {
-                Write-Host "Failed to install Hyper-V on Server OS. Error: $_" -ForegroundColor Red
-                return $false
-            }
-        } else {
-            Write-Host "Unsupported OS: $osCaption" -ForegroundColor Yellow
+        } catch {
+            Write-Host "Failed to enable Hyper-V on client OS. Error: $_" -ForegroundColor Red
             return $false
         }
     }
+    elseif ($osCaption -match "Windows Server") {
+        try {
+            $result = Install-WindowsFeature -Name Hyper-V -IncludeAllSubFeature -IncludeManagementTools -ErrorAction Stop
+            if ($result.Success) {
+                Write-Host "Hyper-V installed." -ForegroundColor Green
+                return $true
+            } else {
+                Write-Host "Install-WindowsFeature returned unexpected result." -ForegroundColor Yellow
+                return $false
+            }
+        } catch {
+            Write-Host "Failed to install Hyper-V on Server OS. Error: $_" -ForegroundColor Red
+            return $false
+        }
+    }
+    else {
+        Write-Host "Unsupported OS: $osCaption" -ForegroundColor Yellow
+        return $false
+    }
+}
+
 
 
     # Function to create a virtual USB storage drive
