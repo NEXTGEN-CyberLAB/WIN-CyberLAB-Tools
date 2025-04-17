@@ -396,7 +396,7 @@ function virtualUSB {
                 Write-Host "Hyper-V enabled." -ForegroundColor Green
                 return $true
             } else {
-                Write-Host "Enable-WindowsOptionalFeature returned unexpected result." -ForegroundColor Yellow
+                Write-Host "Enable-WindowsOptionalFeature returned unexpected result. Plese check if BIOS virtualization is enabled" -ForegroundColor Yellow
                 return $false
             }
         } catch {
@@ -806,14 +806,23 @@ function Main {
 #        Write-Host "Running in interactive mode..."  # Debug statement
         while ($true) {
             Show-Menu
-            $choice = Read-Host "Enter your choice (1-14)"
-            ExecuteOption -choice $choice
-
-            if ($choice -eq 14) {
-                break
+            $choiceInput = Read-Host "Enter your choice (1-14)"
+            if ($choiceInput -match '^\d+$') {
+                $choice = [int]$choiceInput
+                if ($choice -ge 1 -and $choice -le 14) {
+                    ExecuteOption -choice $choice
+                    if ($choice -eq 14) {
+                        break
+                    }
+                    Pause
+                } else {
+                    Write-Host "Please enter a number between 1 and 14." -ForegroundColor Red
+                    Start-Sleep -Seconds 2
+                }
+            } else {
+                Write-Host "Invalid input. Please enter digits only (e.g., 1 to 14)." -ForegroundColor Red
+                Start-Sleep -Seconds 2
             }
-
-            Pause
         }
     }
 }
