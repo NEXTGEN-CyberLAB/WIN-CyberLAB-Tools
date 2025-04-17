@@ -333,7 +333,9 @@ function expandPartition {
 
 function Get-ValidSizeInput {
     param (
-        [string]$PromptMessage = "Enter the size of the virtual USB storage (in MB)"
+        [string]$PromptMessage = "Enter the size of the virtual USB storage (in MB)",
+        [int64]$MinSizeMB = 1,
+        [int64]$MaxSizeMB = 131072  # 128 GB
     )
 
     while ($true) {
@@ -347,12 +349,31 @@ function Get-ValidSizeInput {
         $inputValue = $inputValue.Trim()
 
         if ($inputValue -match '^\d+$') {
-            return [int]$inputValue
+            try {
+                $size = [int64]$inputValue
+
+                # Check if the size is within the valid range
+                if ($size -lt $MinSizeMB) {
+                    Write-Host "Size too small. Must be at least $MinSizeMB MB." -ForegroundColor Red
+                    continue
+                }
+                elseif ($size -gt $MaxSizeMB) {
+                    Write-Host "Size too large. Maximum allowed is $MaxSizeMB MB." -ForegroundColor Red
+                    continue
+                }
+                
+                return $size
+            }
+            catch {
+                Write-Host "Invalid input. The entered number is too large or too small for a valid size." -ForegroundColor Red
+                continue
+            }
         } else {
             Write-Host "Invalid input. Please enter a whole number (e.g., 500)." -ForegroundColor Red
         }
     }
 }
+
 
 
 # Function to create virtual USB
