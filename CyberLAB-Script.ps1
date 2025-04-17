@@ -389,22 +389,16 @@ function virtualUSB {
     Write-Host "Detected OS: $osCaption"
 
     if ($osCaption -match "Windows 10" -or $osCaption -match "Windows 11") {
-        try {
-
-            $result = Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -All -NoRestart -ErrorAction Stop
-            if ($result.RestartNeeded -or $result.FeatureName) {
-                Write-Host "Hyper-V enabled." -ForegroundColor Green
-                return $true
-            } else {
-                Write-Host "Enable-WindowsOptionalFeature returned unexpected result. Plese check if BIOS virtualization is enabled" -ForegroundColor Yellow
-                return $false
-            }
-        } catch {
-            Write-Host "Failed to enable Hyper-V on client OS. Error: $_" -ForegroundColor Red
-            return $false
-        }
-    }
-    elseif ($osCaption -match "Windows Server") {
+             # Use optional features method for client OS
+             try {
+                 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -All -NoRestart
+                 Write-Host "Hyper-V enabled. A restart may be required." -ForegroundColor Green
+                 return $true
+             } catch {
+                 Write-Host "Failed to enable Hyper-V on client OS. Error: $_" -ForegroundColor Red
+                 return $false
+             }
+    }elseif ($osCaption -match "Windows Server") {
         try {
             $result = Install-WindowsFeature -Name Hyper-V -IncludeAllSubFeature -IncludeManagementTools -ErrorAction Stop
             if ($result.Success) {
