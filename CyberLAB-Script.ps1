@@ -410,7 +410,7 @@ function enablVTSteps{
     Write-Host "  https://support.cloudshare.com/hc/en-us/articles/360052306851-Enable-Nested-Virtualization-on-a-VM`n" -ForegroundColor Blue
 
     Write-Host "If you are using a different provider," -ForegroundColor Cyan
-    Write-Host "  please refer to that provider's documentation to enable virtualization support in BIOS or VM settings.`n"
+    Write-Host "  Please refer to that provider's documentation to enable virtualization support in BIOS or VM settings.`n"
 
 }
 
@@ -735,6 +735,7 @@ function nmapScan {
             }
         } else {
             Write-Host "Please install Nmap manually from: https://nmap.org/download.html"
+            Write-Host "Please close and reopen your PowerShell window to apply changes."
         }
 
         return
@@ -743,25 +744,44 @@ function nmapScan {
     # Continue if Nmap is installed
     Write-Host "Nmap is installed."
 
+    # Get IPv4 address
     $ip = (ipconfig | Select-String "IPv4" | Select-Object -First 1).ToString().Split(':')[-1].Trim()
 
     if (-not $ip) {
-        Write-Host "Could not determine local IP address."
+        Write-Host " Could not determine local IP address."
         return
     }
 
-    $octets = $ip.Split('.')
-    $subnet = "$($octets[0]).$($octets[1]).0.0/16"
+    # Try to find matching interface with subnet info
+    $netIP = Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -eq $ip }
 
-    Write-Host "Detected IP: $ip"
-    Write-Host "Scanning subnet: $subnet`n"
+    if ($netIP -and $netIP.PrefixLength) {
+        $prefix = $netIP.PrefixLength
+        $octets = $ip.Split('.')
+        $subnet = ""
 
-    $confirm = Read-Host "Do you want to run the nmap ping scan? Please note that scan can take a long time. (Y/N)"
-    if ($confirm -eq "Y" -or $confirm -eq "y") {
-        Write-Host "Running nmap ping scan on $subnet..."
-        nmap -sn $subnet
+        switch ($prefix) {
+            8   { $subnet = "$($octets[0]).0.0.0/8" }
+            16  { $subnet = "$($octets[0]).$($octets[1]).0.0/16" }
+            24  { $subnet = "$($octets[0]).$($octets[1]).$($octets[2]).0/24" }
+            default {
+                Write-Host "Custom network configuration detected (/{$prefix}). Please run nmap manually." -ForegroundColor Yellow
+                return
+            }
+        }
+
+        Write-Host "Detected IP: $ip"
+        Write-Host "Scanning subnet: $subnet`n"
+
+        $confirm = Read-Host "Do you want to run the nmap ping scan? Please note that scan can take a long time. (Y/N)"
+        if ($confirm -eq "Y" -or $confirm -eq "y") {
+            Write-Host "Running nmap ping scan on $subnet..."
+            nmap -sn $subnet
+        } else {
+            Write-Host "⏭Skipping nmap scan."
+        }
     } else {
-        Write-Host "Skipping nmap scan."
+        Write-Host "Could not determine subnet prefix. Please run nmap manually." -ForegroundColor Red
     }
 }
 
