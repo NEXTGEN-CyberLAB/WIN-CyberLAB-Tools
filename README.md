@@ -8,9 +8,8 @@ Please download the script and run it locally for best results (or copy and past
 Technically you can pipe this script in to powershell directly using something like this, but it's not really built for this yet:
 
 ```powershell
-iex (iwr "https://raw.githubusercontent.com/NEXTGEN-CyberLAB/WIN-CyberLAB-Tools/main/CyberLAB-Script.ps1").Content
+iex (iwr "https://raw.githubusercontent.com/NEXTGEN-CyberLAB/WIN-CyberLAB-Tools/main/CyberLAB-Script.ps1" -UseBasicParsing).Content
 ```
-Just note that if you're doing that on a brand new server, you might need to have run Internet Explorer (yes, that internet explorer) first for iwr to work. 
 
 Run this before you use the script at all:
 
