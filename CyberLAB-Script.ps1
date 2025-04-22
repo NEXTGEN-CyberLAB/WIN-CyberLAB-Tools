@@ -41,7 +41,7 @@ function Show-Menu {
     Write-Host "1. Download this script to the local machine"
     Write-Host "2. Building a domain controller"
     Write-Host "3. Domain joining an endpoint"
-    Write-Host "4. Expand the current partition when you've increased the drive in CloudShare"
+    Write-Host "4. Expanding the current partition after increasing the drive size in CloudShare."
     Write-Host "5. Virtual USB functions"
     Write-Host "6. Change computer name"
     Write-Host "7. Change password for logged-in user"
@@ -309,6 +309,8 @@ function domainJoining {
 # Function to expand disk size
 function expandPartition {
 
+    Write-Host "This may take some time..." -ForegroundColor Yellow
+
     $partition = Get-Partition -DriveLetter C
     $disk = Get-Disk -Number $partition.DiskNumber
 
@@ -316,8 +318,15 @@ function expandPartition {
     $currentSizeGB = [math]::Round($partition.Size / 1GB, 2)
     $maxSizeGB = [math]::Round($supportedSize.SizeMax / 1GB, 2)
 
+    if ($currentSizeGB -eq $maxSizeGB){
+        Write-Host "Drive C is already using the maximum allocated size: $currentSizeGB GB" 
+        Write-Host "Returning to main menu"
+        return
+    }
+
 
     Write-Host "You're about to resize drive C: from $currentSizeGB GB to $maxSizeGB GB."
+
     Write-Host "This will use all available unallocated space on the disk."
     $confirm = Read-Host "Do you want to continue? (Y/N)"
 
@@ -378,7 +387,32 @@ function Get-ValidSizeInput {
     }
 }
 
+function enablVTSteps{
+    Write-Host ""
+    Write-Host "Enabling Virtualization (VT-x) on CloudShare" -ForegroundColor Cyan
+    Write-Host ""
 
+    Write-Host "If you are using this script in a CloudShare environment and need to enable virtualization (VT-x), follow these steps:`n"
+
+    Write-Host "Step 1:" -ForegroundColor Yellow
+    Write-Host "  Go to the Environment Details page and click 'Edit Environment'.`n"
+
+    Write-Host "Step 2:" -ForegroundColor Yellow
+    Write-Host "  Click 'Edit Hardware' for the virtual machine you want to configure.`n"
+
+    Write-Host "Step 3:" -ForegroundColor Yellow
+    Write-Host "  Tick the 'VT' checkbox to enable virtualization for the selected VM.`n"
+
+    Write-Host "Step 4:" -ForegroundColor Yellow
+    Write-Host "  Click 'Save' to apply the changes.`n"
+
+    Write-Host "For more information, visit the CloudShare help page:" -ForegroundColor Green
+    Write-Host "  https://support.cloudshare.com/hc/en-us/articles/360052306851-Enable-Nested-Virtualization-on-a-VM`n" -ForegroundColor Blue
+
+    Write-Host "If you are using a different provider," -ForegroundColor Cyan
+    Write-Host "  please refer to that provider's documentation to enable virtualization support in BIOS or VM settings.`n"
+
+}
 
 # Function to create virtual USB
 function virtualUSB {
@@ -414,6 +448,7 @@ function virtualUSB {
             }
         } catch {
             Write-Host "Failed to install Hyper-V on Server OS. Please check if BIOS virtualization is enabled. Error: $_" -ForegroundColor Red
+            enablVTSteps
             return $false
         }
     }
