@@ -59,7 +59,7 @@ function Show-Menu {
 
 function scriptDownload {
     param (
-        [string]$url = "https://raw.githubusercontent.com/NEXTGEN-CyberLAB/WIN-CyberLAB-Tools/refs/heads/main/CyberLAB-Script.ps1",
+        [string]$url = "https://raw.githubusercontent.com/NEXTGEN-CyberLAB/WIN-CyberLAB-Tools/refs/heads/main/CyberLAB-quickstart.ps1",
         [string]$savePath = "$env:USERPROFILE\Downloads\CyberLAB-quickstart.ps1"
     )
 
