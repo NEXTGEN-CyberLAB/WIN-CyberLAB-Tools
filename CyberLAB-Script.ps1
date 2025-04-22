@@ -66,8 +66,12 @@ function scriptDownload {
     Write-Host "Downloading latest script from GitHub..."
 
     try {
-        Invoke-WebRequest -Uri $url -OutFile $savePath -UseBasicParsing
-        Write-Host "Script downloaded successfully to: $savePath" -ForegroundColor Green
+        $content = Invoke-WebRequest -Uri $url -UseBasicParsing | Select-Object -ExpandProperty Content
+        # Save with UTF-8 with BOM
+        $utf8BomEncoding = New-Object System.Text.UTF8Encoding($true)
+        [System.IO.File]::WriteAllText($savePath, $content, $utf8BomEncoding)
+        
+        Write-Host "Script downloaded and saved (UTF-8 with BOM) to: $savePath" -ForegroundColor Green
     } catch {
         Write-Host "Failed to download the script. Error: $($_.Exception.Message)" -ForegroundColor Red
     }
