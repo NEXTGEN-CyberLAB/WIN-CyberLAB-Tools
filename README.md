@@ -8,7 +8,7 @@ Please download the script and run it locally for best results (or copy and past
 Technically you can pipe this script in to powershell directly using something like this, but it's not really built for this yet:
 
 ```powershell
-iex (iwr "https://raw.githubusercontent.com/NEXTGEN-CyberLAB/WIN-CyberLAB-Tools/main/CyberLAB-Script.ps1" -UseBasicParsing).Content
+iex (iwr "https://raw.githubusercontent.com/NEXTGEN-CyberLAB/WIN-CyberLAB-Tools/main/CyberLAB-quickstart.ps1" -UseBasicParsing).Content
 ```
 
 Run this before you use the script at all:
