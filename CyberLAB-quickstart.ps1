@@ -1,12 +1,12 @@
 ####################################################
 #                                                  #
-#  Please reach out to NEXTGEN for any additions,  #
-#  bug fixes, corrections or otherwise. Script is  #
-#  provided with no guarantees, use with caution.  #
-#  It is not advised to use this outside of the    #             
-#                   CyberLAB                       # 
+#  Please reach out to the CyberLAB Team for any   #
+#  additions, bug fixes, corrections or otherwise. #
+#  Script is provided with no guarantees, use with #
+#  caution. It is not advised to use this outside  #
+#              of the CyberLAB                     # 
 #                                                  #
-#        hayden.loader@nextgen.group               #
+#          hayden.loader@nextgen.group             #
 #                                                  #
 ####################################################
 
@@ -32,9 +32,8 @@ function Show-Menu {
     Clear-Host
     Write-Host "================================================================================="
     Write-Host "                                 CyberLAB Toolbox"
-    Write-Host "                             (This script is an alpha)"
-    Write-Host "                                       V0.5"
-    Write-Host "                                     20240726"
+    Write-Host "                                       V1.0"
+    Write-Host "                                     20250930"
     Write-Host ""
     Write-Host "                      Contact: hayden.loader@nextgen.group"
     Write-Host "================================================================================="
@@ -881,3 +880,4 @@ function Main {
 }
 
 Main
+
